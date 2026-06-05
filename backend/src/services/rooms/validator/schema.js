@@ -13,4 +13,5 @@ export const roomPayloadSchema = Joi.object({
   open_time: Joi.string().required(),
   close_time: Joi.string().required(),
   type: Joi.string().valid('meeting', 'event').required(),
+  images: Joi.string().allow('', null).optional(),
 });
