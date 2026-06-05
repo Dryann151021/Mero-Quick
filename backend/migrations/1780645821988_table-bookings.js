@@ -40,12 +40,10 @@ export const up = (pgm) => {
     status: {
       type: 'VARCHAR(20)',
       notNull: true,
-      default: 'confirmed',
     },
     created_at: {
       type: 'TIMESTAMP',
       notNull: true,
-      default: pgm.func('current_timestamp'),
     },
   });
 };
