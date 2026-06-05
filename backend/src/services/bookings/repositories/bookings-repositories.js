@@ -6,11 +6,12 @@ import NotFoundError from '../../../exceptions/not-found-error.js';
 const BookingsRepositories = {
   addBooking: async (payload, userId) => {
     const id = `booking-${nanoid(16)}`;
+    const createdAt = new Date().toISOString();
 
     const query = {
       text: `INSERT INTO bookings 
-        (id, room_id, user_id, booking_date, start_time, end_time, activity, organization)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        (id, room_id, user_id, booking_date, start_time, end_time, activity, organization, status, created_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         RETURNING id`,
       values: [
         id,
@@ -21,6 +22,8 @@ const BookingsRepositories = {
         payload.end_time,
         payload.activity,
         payload.organization,
+        'pending',
+        createdAt,
       ],
     };
 

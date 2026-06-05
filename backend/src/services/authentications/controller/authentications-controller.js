@@ -7,10 +7,7 @@ import AuthenticationError from '../../../exceptions/authentication-error.js';
 
 export const login = async (c) => {
   const { email, password } = c.get('validated');
-  const userId = await UserRepositories.verifyUserCredential(
-    email,
-    password
-  );
+  const userId = await UserRepositories.verifyUserCredential(email, password);
 
   if (!userId) {
     throw new AuthenticationError('Kredensial yang Anda berikan salah');
@@ -19,8 +16,17 @@ export const login = async (c) => {
   const user = await UserRepositories.getUserById(userId);
   const role = user?.role || 'user';
 
-  const accessToken = TokenManager.generateAccessToken({ id: userId, role });
-  const refreshToken = TokenManager.generateRefreshToken({ id: userId, role });
+  const fullname = user?.name || 'User';
+  const accessToken = TokenManager.generateAccessToken({
+    id: userId,
+    role,
+    fullname,
+  });
+  const refreshToken = TokenManager.generateRefreshToken({
+    id: userId,
+    role,
+    fullname,
+  });
 
   await AuthenticationRepositories.addRefreshToken(refreshToken);
 
@@ -41,8 +47,16 @@ export const refreshToken = async (c) => {
 
   const { id } = TokenManager.verifyRefreshToken(refreshToken);
   const user = await UserRepositories.getUserById(id);
-  const role = user?.role || 'user';
-  const accessToken = TokenManager.generateAccessToken({ id, role });
+
+  if (!user) {
+    throw new AuthenticationError(
+      'User tidak ditemukan atau akun sudah tidak aktif'
+    );
+  }
+
+  const role = user.role;
+  const fullname = user.name;
+  const accessToken = TokenManager.generateAccessToken({ id, role, fullname });
 
   return response(c, 200, 'Access Token berhasil diperbarui', {
     accessToken,
