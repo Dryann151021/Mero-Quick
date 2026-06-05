@@ -12,8 +12,8 @@ const RoomsRepositories = {
 
     const query = {
       text: `INSERT INTO rooms 
-        (id, name, location, address, capacity, price_per_hour, description, facilities, min_hours, open_time, close_time, type, owner_id, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+        (id, name, location, address, capacity, price_per_hour, description, facilities, min_hours, open_time, close_time, type, owner_id, images, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
         RETURNING id`,
       values: [
         id,
@@ -29,6 +29,7 @@ const RoomsRepositories = {
         payload.close_time,
         payload.type,
         ownerId,
+        payload.images,
         createdAt,
         updatedAt,
       ],
@@ -77,8 +78,9 @@ const RoomsRepositories = {
       text: `UPDATE rooms SET 
         name = $1, location = $2, address = $3, capacity = $4, 
         price_per_hour = $5, description = $6, facilities = $7, 
-        min_hours = $8, open_time = $9, close_time = $10, type = $11, updated_at = $12 
-        WHERE id = $13 RETURNING id`,
+        min_hours = $8, open_time = $9, close_time = $10, type = $11, 
+        images = $12, updated_at = $13 
+        WHERE id = $14 RETURNING id`,
       values: [
         payload.name,
         payload.location,
@@ -91,6 +93,7 @@ const RoomsRepositories = {
         payload.open_time,
         payload.close_time,
         payload.type,
+        payload.images || null,
         updatedAt,
         id,
       ],

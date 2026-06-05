@@ -1,7 +1,9 @@
-import ClientError from '../../../exceptions/client-error.js';
+import InvariantError from '../../../exceptions/invariant-error.js';
 import response from '../../../utils/response.js';
 import path from 'path';
 import fs from 'fs';
+import logger from '../../../config/logger.js';
+import RequestEntityTooLargeError from '../../../exceptions/request-entity-too-large.js';
 
 export const UPLOAD_FOLDER = path.resolve(
   process.cwd(),
@@ -14,27 +16,67 @@ if (!fs.existsSync(UPLOAD_FOLDER)) {
 
 export const uploadImages = async (c) => {
   const body = await c.req.parseBody();
-  const file = body.image; // Expecting field name 'image'
+  const file = body.image;
 
   if (!file || !(file instanceof File)) {
-    throw new ClientError('No file uploaded or invalid file format');
+    throw new InvariantError(
+      'File tidak ditemukan atau format file tidak valid'
+    );
   }
 
-  // Limit file size to 5MB
   if (file.size > 5 * 1024 * 1024) {
-    throw new ClientError('File size exceeds 5MB limit');
+    throw new RequestEntityTooLargeError('Ukuran file melebihi batas 5MB');
   }
 
-  // Limit type to image
   if (!file.type.startsWith('image/')) {
-    throw new ClientError('Only image files are allowed');
+    throw new InvariantError('Hanya file gambar yang diperbolehkan');
   }
-
-  const host = process.env.HOST || 'localhost';
-  const port = process.env.PORT || 3000;
 
   const ext = path.extname(file.name);
   const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}${ext}`;
+
+  const { SUPABASE_KEY, BUCKET_URL, BUCKET_NAME } = process.env;
+
+  if (SUPABASE_KEY && BUCKET_URL) {
+    try {
+      const match = BUCKET_URL.match(
+        /https:\/\/([^.]+)\.storage\.supabase\.co/
+      );
+      const projectRef = match ? match[1] : null;
+
+      if (projectRef && BUCKET_NAME) {
+        const baseUrl = `https://${projectRef}.supabase.co/storage/v1/object`;
+        const uploadUrl = `${baseUrl}/${BUCKET_NAME}/${filename}`;
+        const bytes = await file.arrayBuffer();
+
+        const uploadRes = await fetch(uploadUrl, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+            apikey: SUPABASE_KEY,
+            'Content-Type': file.type,
+          },
+          body: bytes,
+        });
+
+        if (uploadRes.ok) {
+          const fileLocation = `${baseUrl}/public/${BUCKET_NAME}/${filename}`;
+          return response(c, 201, 'Upload success (Supabase)', {
+            fileLocation,
+          });
+        } else {
+          const errText = await uploadRes.text();
+          logger.error('Failed to upload to Supabase Storage:', errText);
+        }
+      }
+    } catch (err) {
+      logger.error('Error uploading to Supabase, falling back to local:', err);
+    }
+  }
+
+  // local fallback
+  const host = process.env.HOST;
+  const port = process.env.PORT;
   const filepath = path.join(UPLOAD_FOLDER, filename);
 
   const bytes = await file.arrayBuffer();
@@ -43,5 +85,5 @@ export const uploadImages = async (c) => {
   const encodedFilename = encodeURIComponent(filename);
   const fileLocation = `http://${host}:${port}/uploads/${encodedFilename}`;
 
-  return response(c, 201, 'Upload success', { fileLocation });
+  return response(c, 201, 'Upload success (Local)', { fileLocation });
 };
