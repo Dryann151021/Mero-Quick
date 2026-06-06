@@ -48,8 +48,10 @@ export async function apiClient(
 ) {
   const token = await getValidAccessToken();
 
+  const isFormData = data instanceof FormData;
+
   const headers = {
-    "Content-Type": "application/json",
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
     ...customHeaders,
   };
 

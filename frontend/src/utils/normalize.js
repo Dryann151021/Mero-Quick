@@ -14,5 +14,6 @@ export function normalizeRoom(data) {
       open: data.open_time,
       close: data.close_time,
     },
+    images: data.images,
   };
 }

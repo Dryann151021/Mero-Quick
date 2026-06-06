@@ -5,6 +5,7 @@ import BookingSchedule from '../components/rooms/BookingSchedule';
 import RoomHeader from '../components/rooms/RoomHeader';
 import RoomSpecs from '../components/rooms/RoomSpecs';
 import RoomLocation from '../components/rooms/RoomLocation';
+import RoomGallery from '../components/rooms/RoomGallery';
 import { getRoomById } from '../api/rooms';
 import { formatInputDate } from '../utils/formatters';
 
@@ -58,9 +59,13 @@ export default function RoomDetailPage({ room, onBack }) {
         <RoomHeader room={room} />
 
         <div className="room-detail__gallery">
-          <div style={{ width: '100%', height: '400px', backgroundColor: '#e2e8f0', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: '1.25rem', fontWeight: 500, marginBottom: '32px' }}>
-            No Image Available
-          </div>
+          {room.images ? (
+            <RoomGallery images={[room.images]} name={room.name} />
+          ) : (
+            <div className="room-detail__no-image">
+              No Image Available
+            </div>
+          )}
         </div>
 
         <div className="room-detail__content">

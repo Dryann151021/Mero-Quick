@@ -68,16 +68,16 @@ export default function ManageRoomsPage() {
 
     if (view === 'create' || view === 'edit') {
         return (
-            <main className="register-page" style={{ padding: '40px 20px', maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
-                <div style={{ marginBottom: '24px' }}>
-                    <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#0f172a' }}>
+            <main className="page-container page-container--narrow">
+                <div className="page-header">
+                    <h1 className="page-title">
                         {view === 'edit' ? 'Edit Ruangan' : 'Tambah Ruangan Baru'}
                     </h1>
-                    <p style={{ color: '#64748b' }}>
+                    <p className="page-subtitle">
                         {view === 'edit' ? 'Perbarui detail ruangan yang sudah ada' : 'Tambahkan ruangan baru ke dalam sistem'}
                     </p>
                 </div>
-                <div className="register-page__inner" style={{ margin: 0, maxWidth: '100%' }}>
+                <div className="register-page__inner">
                     <RegisterForm 
                         initialData={selectedRoom} 
                         onSuccess={handleFormSuccess} 
@@ -89,63 +89,63 @@ export default function ManageRoomsPage() {
     }
 
     return (
-        <main className="manage-rooms-page" style={{ padding: '40px 20px', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+        <main className="page-container">
+            <div className="page-header--split">
                 <div>
-                    <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#0f172a', marginBottom: '8px' }}>
+                    <h1 className="page-title">
                         Kelola Ruangan
                     </h1>
-                    <p style={{ color: '#64748b' }}>
+                    <p className="page-subtitle">
                         Daftar semua ruangan yang tersedia di sistem
                     </p>
                 </div>
                 <button 
                     onClick={handleCreate}
-                    style={{ backgroundColor: '#2563eb', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}
+                    className="manage-rooms-page__add-btn"
                 >
                     + Tambah Ruangan
                 </button>
             </div>
 
             {loading ? (
-                <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>Memuat data...</div>
+                <div className="state-loading">Memuat data...</div>
             ) : error ? (
-                <div style={{ textAlign: 'center', padding: '40px', color: '#ef4444' }}>{error}</div>
+                <div className="state-error">{error}</div>
             ) : rooms.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '60px 20px', backgroundColor: '#f8fafc', borderRadius: '12px', border: '1px dashed #cbd5e1' }}>
-                    <div style={{ fontSize: '2rem', marginBottom: '16px' }}>🏢</div>
-                    <h3 style={{ fontSize: '1.25rem', color: '#0f172a', marginBottom: '8px' }}>Belum ada ruangan</h3>
-                    <p style={{ color: '#64748b' }}>Silakan tambahkan ruangan baru.</p>
+                <div className="state-empty">
+                    <div className="state-empty__icon">🏢</div>
+                    <h3 className="state-empty__title">Belum ada ruangan</h3>
+                    <p className="state-empty__desc">Silakan tambahkan ruangan baru.</p>
                 </div>
             ) : (
-                <div style={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                        <thead style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                <div className="data-table-wrap">
+                    <table className="data-table">
+                        <thead>
                             <tr>
-                                <th style={{ padding: '16px', textAlign: 'left', color: '#475569', fontWeight: '600', fontSize: '0.875rem' }}>Nama Ruangan</th>
-                                <th style={{ padding: '16px', textAlign: 'left', color: '#475569', fontWeight: '600', fontSize: '0.875rem' }}>Tipe</th>
-                                <th style={{ padding: '16px', textAlign: 'left', color: '#475569', fontWeight: '600', fontSize: '0.875rem' }}>Kapasitas</th>
-                                <th style={{ padding: '16px', textAlign: 'left', color: '#475569', fontWeight: '600', fontSize: '0.875rem' }}>Harga/Jam</th>
-                                <th style={{ padding: '16px', textAlign: 'right', color: '#475569', fontWeight: '600', fontSize: '0.875rem' }}>Aksi</th>
+                                <th>Nama Ruangan</th>
+                                <th>Tipe</th>
+                                <th>Kapasitas</th>
+                                <th>Harga/Jam</th>
+                                <th className="th--right">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             {rooms.map((room) => (
-                                <tr key={room.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                                    <td style={{ padding: '16px', color: '#0f172a', fontWeight: '500' }}>{room.name}</td>
-                                    <td style={{ padding: '16px', color: '#64748b' }}>{room.type === 'meeting' ? 'Meeting Room' : 'Event Space'}</td>
-                                    <td style={{ padding: '16px', color: '#64748b' }}>{room.capacity} org</td>
-                                    <td style={{ padding: '16px', color: '#64748b' }}>{formatCurrency(room.pricePerHour)}</td>
-                                    <td style={{ padding: '16px', textAlign: 'right' }}>
+                                <tr key={room.id}>
+                                    <td className="td--name">{room.name}</td>
+                                    <td>{room.type === 'meeting' ? 'Meeting Room' : 'Event Space'}</td>
+                                    <td>{room.capacity} org</td>
+                                    <td>{formatCurrency(room.pricePerHour)}</td>
+                                    <td className="td--right">
                                         <button 
                                             onClick={() => handleEdit(room)}
-                                            style={{ backgroundColor: 'transparent', border: '1px solid #cbd5e1', padding: '6px 12px', borderRadius: '6px', marginRight: '8px', cursor: 'pointer', color: '#475569', fontWeight: '500' }}
+                                            className="data-table__btn"
                                         >
                                             Edit
                                         </button>
                                         <button 
                                             onClick={() => handleDelete(room)}
-                                            style={{ backgroundColor: '#fee2e2', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', color: '#b91c1c', fontWeight: '500' }}
+                                            className="data-table__btn data-table__btn--danger"
                                         >
                                             Hapus
                                         </button>

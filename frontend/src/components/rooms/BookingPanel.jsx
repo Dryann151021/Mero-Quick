@@ -1,21 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import {
   formatCurrency,
   calcDuration,
   generateTimeOptions,
-} from "../../utils/formatters";
-import { useBooking } from "../../hooks/useBooking";
+} from '../../utils/formatters';
+import { useBooking } from '../../hooks/useBooking';
 
 export default function BookingPanel({ room, bookings = [], onSuccess }) {
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split('T')[0];
   const [date, setDate] = useState(today);
-  const [startTime, setStartTime] = useState("09:00");
-  const [endTime, setEndTime] = useState("11:00");
-  const [activity, setActivity] = useState("");
-  const [organization, setOrganization] = useState("");
+  const [startTime, setStartTime] = useState('09:00');
+  const [endTime, setEndTime] = useState('11:00');
+  const [activity, setActivity] = useState('');
+  const [organization, setOrganization] = useState('');
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [localError, setLocalError] = useState("");
+  const [localError, setLocalError] = useState('');
 
   const { status, errorMsg, computePrice, submitBooking, reset } =
     useBooking(room);
@@ -28,12 +28,12 @@ export default function BookingPanel({ room, bookings = [], onSuccess }) {
   const totalPrice = computePrice(startTime, endTime);
 
   useEffect(() => {
-    setLocalError("");
+    setLocalError('');
   }, [date, startTime, endTime, activity, organization]);
 
   async function handleBook() {
     if (!activity.trim() || !organization.trim()) {
-      setLocalError("Harap isi nama kegiatan dan institusi.");
+      setLocalError('Harap isi nama kegiatan dan institusi.');
       return;
     }
 
@@ -44,11 +44,13 @@ export default function BookingPanel({ room, bookings = [], onSuccess }) {
     });
 
     if (conflict) {
-      setLocalError("Jadwal bentrok dengan pemesanan lain pada tanggal dan jam tersebut.");
+      setLocalError(
+        'Jadwal bentrok dengan pemesanan lain pada tanggal dan jam tersebut.',
+      );
       return;
     }
 
-    setLocalError("");
+    setLocalError('');
     setShowConfirmModal(true);
   }
 
@@ -66,7 +68,7 @@ export default function BookingPanel({ room, bookings = [], onSuccess }) {
     }
   }
 
-  if (status === "success") {
+  if (status === 'success') {
     return (
       <div className="booking-panel">
         <div className="booking-panel__success">
@@ -218,40 +220,28 @@ export default function BookingPanel({ room, bookings = [], onSuccess }) {
       )}
 
       <button
-        className="booking-panel__book-btn"
+        className="btn-submit"
         onClick={handleBook}
-        disabled={status === "loading" || hours <= 0}
+        disabled={status === 'loading' || hours <= 0}
       >
-        {status === "loading" ? "Memproses..." : "Pesan Sekarang"}
+        {status === 'loading' ? 'Memproses...' : 'Pesan Sekarang'}
       </button>
 
       <p className="booking-panel__min-note">
-        Minimum pemesanan {room.minHours} jam · Jam operasional{" "}
+        Minimum pemesanan {room.minHours} jam · Jam operasional{' '}
         {room.operationalHours.open}–{room.operationalHours.close}
       </p>
 
       {showConfirmModal && (
         <div className="auth-modal-overlay">
-          <div className="auth-modal" style={{ maxWidth: "400px" }}>
+          <div className="auth-modal modal--md">
             <div className="auth-modal__body">
               <h3 className="auth-modal__title">Konfirmasi Pemesanan</h3>
-              <p className="auth-modal__subtitle" style={{ marginBottom: "16px" }}>
+              <p className="auth-modal__subtitle">
                 Silakan periksa kembali detail pesanan Anda sebelum melanjutkan.
               </p>
 
-              <div
-                style={{
-                  backgroundColor: "#f8fafc",
-                  padding: "16px",
-                  borderRadius: "8px",
-                  marginBottom: "20px",
-                  textAlign: "left",
-                  fontSize: "0.9rem",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "8px",
-                }}
-              >
+              <div className="confirm-summary">
                 <div>
                   <strong>Ruangan:</strong> {room.name}
                 </div>
@@ -267,26 +257,18 @@ export default function BookingPanel({ room, bookings = [], onSuccess }) {
                 <div>
                   <strong>Institusi:</strong> {organization}
                 </div>
-                <div
-                  style={{
-                    borderTop: "1px solid #e2e8f0",
-                    paddingTop: "8px",
-                    marginTop: "4px",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    fontWeight: "bold",
-                  }}
-                >
+                <div className="confirm-summary__total">
                   <span>Total Bayar:</span>
-                  <span style={{ color: "#0f766e" }}>{formatCurrency(totalPrice)}</span>
+                  <span className="confirm-summary__highlight">
+                    {formatCurrency(totalPrice)}
+                  </span>
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: "12px" }}>
+              <div className="modal__actions">
                 <button
                   type="button"
-                  className="header__btn header__btn--outline"
-                  style={{ flex: 1 }}
+                  className="header__btn header__btn--outline header__btn--danger"
                   onClick={() => setShowConfirmModal(false)}
                 >
                   Batal
@@ -294,7 +276,6 @@ export default function BookingPanel({ room, bookings = [], onSuccess }) {
                 <button
                   type="button"
                   className="header__btn header__btn--primary"
-                  style={{ flex: 1 }}
                   onClick={() => {
                     setShowConfirmModal(false);
                     executeBooking();

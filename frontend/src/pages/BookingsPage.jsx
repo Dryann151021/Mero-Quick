@@ -64,93 +64,88 @@ export default function BookingsPage() {
   const bookingsToDisplay = activeTab === 'current' ? currentBookings : historyBookings;
 
   return (
-    <main className="bookings-page" style={{ padding: '40px 20px', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
-      <div className="bookings-page__header" style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#0f172a', marginBottom: '8px' }}>
+    <main className="page-container">
+      <div className="page-header">
+        <h1 className="page-title">
           {isAdmin ? 'Dashboard Admin: Kelola Booking' : 'Booking Saya'}
         </h1>
-        <p style={{ color: '#64748b' }}>
+        <p className="page-subtitle">
           {isAdmin ? 'Terima atau tolak pemesanan ruangan dari pengguna' : 'Lihat status pemesanan ruangan Anda'}
         </p>
       </div>
 
-      <div className="bookings-page__tabs" style={{ display: 'flex', gap: '16px', borderBottom: '1px solid #e2e8f0', marginBottom: '24px' }}>
+      <div className="bookings-page__tabs">
         <button
           className={`bookings-page__tab ${activeTab === 'current' ? 'active' : ''}`}
           onClick={() => setActiveTab('current')}
-          style={{ padding: '12px 24px', borderBottom: activeTab === 'current' ? '2px solid #2563eb' : '2px solid transparent', color: activeTab === 'current' ? '#2563eb' : '#64748b', fontWeight: '500', background: 'none', borderTop: 'none', borderLeft: 'none', borderRight: 'none', cursor: 'pointer' }}
         >
           Booking Aktif
         </button>
         <button
           className={`bookings-page__tab ${activeTab === 'history' ? 'active' : ''}`}
           onClick={() => setActiveTab('history')}
-          style={{ padding: '12px 24px', borderBottom: activeTab === 'history' ? '2px solid #2563eb' : '2px solid transparent', color: activeTab === 'history' ? '#2563eb' : '#64748b', fontWeight: '500', background: 'none', borderTop: 'none', borderLeft: 'none', borderRight: 'none', cursor: 'pointer' }}
         >
           Riwayat Booking
         </button>
       </div>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>Memuat data...</div>
+        <div className="state-loading">Memuat data...</div>
       ) : error ? (
-        <div style={{ textAlign: 'center', padding: '40px', color: '#ef4444' }}>{error}</div>
+        <div className="state-error">{error}</div>
       ) : bookingsToDisplay.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '60px 20px', backgroundColor: '#f8fafc', borderRadius: '12px', border: '1px dashed #cbd5e1' }}>
-          <div style={{ fontSize: '2rem', marginBottom: '16px' }}>📝</div>
-          <h3 style={{ fontSize: '1.25rem', color: '#0f172a', marginBottom: '8px' }}>Belum ada data</h3>
-          <p style={{ color: '#64748b' }}>Tidak ada booking di tab ini.</p>
+        <div className="state-empty">
+          <div className="state-empty__icon">📝</div>
+          <h3 className="state-empty__title">Belum ada data</h3>
+          <p className="state-empty__desc">Tidak ada booking di tab ini.</p>
         </div>
       ) : (
-        <div className="bookings-page__list" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="bookings-page__list">
           {bookingsToDisplay.map((booking) => (
-            <div key={booking.id} className="booking-card" style={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-              <div className="booking-card__info" style={{ flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0f172a', margin: 0 }}>{booking.room_name}</h3>
-                  <span style={{ padding: '4px 12px', borderRadius: '999px', fontSize: '0.85rem', fontWeight: '500', 
-                    backgroundColor: booking.status === 'accepted' ? '#dcfce7' : booking.status === 'rejected' ? '#fee2e2' : '#fef9c3',
-                    color: booking.status === 'accepted' ? '#166534' : booking.status === 'rejected' ? '#991b1b' : '#854d0e'
-                  }}>
+            <div key={booking.id} className="booking-card">
+              <div className="booking-card__info">
+                <div className="booking-card__name-row">
+                  <h3 className="booking-card__name">{booking.room_name}</h3>
+                  <span className={`status-badge ${getStatusBadgeClass(booking.status)}`}>
                     {getStatusText(booking.status)}
                   </span>
                 </div>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginTop: '16px' }}>
+                <div className="booking-card__details">
                   <div>
-                    <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '0 0 4px 0' }}>Waktu Pelaksanaan</p>
-                    <p style={{ fontWeight: '500', color: '#0f172a', margin: 0 }}>
+                    <p className="booking-card__detail-label">Waktu Pelaksanaan</p>
+                    <p className="booking-card__detail-value">
                       {formatDateShort(new Date(booking.booking_date))} • {booking.start_time} - {booking.end_time}
                     </p>
                   </div>
                   <div>
-                    <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '0 0 4px 0' }}>Kegiatan</p>
-                    <p style={{ fontWeight: '500', color: '#0f172a', margin: 0 }}>{booking.activity}</p>
+                    <p className="booking-card__detail-label">Kegiatan</p>
+                    <p className="booking-card__detail-value">{booking.activity}</p>
                   </div>
                   <div>
-                    <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '0 0 4px 0' }}>Organisasi</p>
-                    <p style={{ fontWeight: '500', color: '#0f172a', margin: 0 }}>{booking.organization}</p>
+                    <p className="booking-card__detail-label">Organisasi</p>
+                    <p className="booking-card__detail-value">{booking.organization}</p>
                   </div>
                   {isAdmin && (
                     <div>
-                      <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '0 0 4px 0' }}>Pemesan</p>
-                      <p style={{ fontWeight: '500', color: '#0f172a', margin: 0 }}>{booking.user_email}</p>
+                      <p className="booking-card__detail-label">Pemesan</p>
+                      <p className="booking-card__detail-value">{booking.user_email}</p>
                     </div>
                   )}
                 </div>
               </div>
 
               {isAdmin && booking.status === 'pending' && activeTab === 'current' && (
-                <div className="booking-card__actions" style={{ display: 'flex', gap: '12px', marginLeft: '24px' }}>
+                <div className="booking-card__actions">
                   <button 
                     onClick={() => handleUpdateStatus(booking.id, 'rejected')}
-                    style={{ padding: '8px 16px', backgroundColor: '#fff', border: '1px solid #ef4444', color: '#ef4444', borderRadius: '6px', fontWeight: '500', cursor: 'pointer' }}
+                    className="booking-card__btn booking-card__btn--reject"
                   >
                     Tolak
                   </button>
                   <button 
                     onClick={() => handleUpdateStatus(booking.id, 'accepted')}
-                    style={{ padding: '8px 16px', backgroundColor: '#2563eb', border: 'none', color: '#fff', borderRadius: '6px', fontWeight: '500', cursor: 'pointer' }}
+                    className="booking-card__btn booking-card__btn--accept"
                   >
                     Terima
                   </button>

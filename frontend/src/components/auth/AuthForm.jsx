@@ -1,37 +1,37 @@
-import { useState } from "react";
-import { apiClient } from "../../api/client";
+import { useState } from 'react';
+import { apiClient } from '../../api/client';
 
 export default function AuthForm({
-  mode = "login",
+  mode = 'login',
   intentLabel,
   onSuccess,
   onSwitchMode,
 }) {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [address, setAddress] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [address, setAddress] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const [showConfirmRegister, setShowConfirmRegister] = useState(false);
   const [showLoginSuccess, setShowLoginSuccess] = useState(false);
 
-  const isRegister = mode === "register";
+  const isRegister = mode === 'register';
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError("");
+    setError('');
 
     if (isRegister && password !== confirmPassword) {
-      setError("Konfirmasi password tidak cocok.");
+      setError('Konfirmasi password tidak cocok.');
       return;
     }
 
     if (password.length < 6) {
-      setError("Password minimal 6 karakter.");
+      setError('Password minimal 6 karakter.');
       return;
     }
 
@@ -39,8 +39,8 @@ export default function AuthForm({
 
     try {
       if (isRegister) {
-        await apiClient("/users", {
-          method: "POST",
+        await apiClient('/users', {
+          method: 'POST',
           data: {
             email: email,
             password: password,
@@ -53,8 +53,8 @@ export default function AuthForm({
         return;
       }
 
-      const res = await apiClient("/authentications", {
-        method: "POST",
+      const res = await apiClient('/authentications', {
+        method: 'POST',
         data: {
           email: email,
           password: password,
@@ -62,17 +62,17 @@ export default function AuthForm({
       });
 
       if (res.data && res.data.accessToken) {
-        localStorage.setItem("accessToken", res.data.accessToken);
+        localStorage.setItem('accessToken', res.data.accessToken);
         if (res.data.refreshToken) {
-          localStorage.setItem("refreshToken", res.data.refreshToken);
+          localStorage.setItem('refreshToken', res.data.refreshToken);
         }
         setShowLoginSuccess(true);
       } else {
-        setError("Gagal mendapatkan token dari server.");
+        setError('Gagal mendapatkan token dari server.');
       }
     } catch (err) {
       console.error(err);
-      setError(err.message || "Terjadi kesalahan sistem.");
+      setError(err.message || 'Terjadi kesalahan sistem.');
     } finally {
       setLoading(false);
     }
@@ -96,7 +96,7 @@ export default function AuthForm({
                 <line x1="12" y1="16" x2="12.01" y2="16" />
               </svg>
               <span>
-                Silakan masuk atau daftar terlebih dahulu untuk{" "}
+                Silakan masuk atau daftar terlebih dahulu untuk{' '}
                 <strong>{intentLabel}</strong>.
               </span>
             </div>
@@ -104,12 +104,12 @@ export default function AuthForm({
 
           <div>
             <h2 className="auth-modal__title">
-              {isRegister ? "Buat Akun Baru" : "Selamat Datang Kembali"}
+              {isRegister ? 'Buat Akun Baru' : 'Selamat Datang Kembali'}
             </h2>
             <p className="auth-modal__subtitle">
               {isRegister
-                ? "Bergabunglah dengan ribuan pengguna xWork"
-                : "Masuk ke akun xWork Anda"}
+                ? 'Daftar untuk mulai menggunakan Mero Quick'
+                : 'Masuk ke akun Mero Anda'}
             </p>
           </div>
 
@@ -117,7 +117,7 @@ export default function AuthForm({
 
           <form
             onSubmit={handleSubmit}
-            style={{ display: "flex", flexDirection: "column", gap: 14 }}
+            className="form-col"
           >
             {isRegister && (
               <div className="auth-modal__field">
@@ -194,39 +194,39 @@ export default function AuthForm({
             )}
 
             <button
-              className="auth-modal__submit"
+              className="btn-submit"
               type="submit"
               disabled={loading}
             >
               {loading
                 ? isRegister
-                  ? "Mendaftar..."
-                  : "Masuk..."
+                  ? 'Mendaftar...'
+                  : 'Masuk...'
                 : isRegister
-                  ? "Buat Akun"
-                  : "Masuk"}
+                  ? 'Buat Akun'
+                  : 'Masuk'}
             </button>
           </form>
 
           <p className="auth-modal__footer">
             {isRegister ? (
               <>
-                Sudah punya akun?{" "}
+                Sudah punya akun?{' '}
                 <button
                   className="auth-modal__footer-link"
                   type="button"
-                  onClick={() => onSwitchMode("login")}
+                  onClick={() => onSwitchMode('login')}
                 >
                   Masuk
                 </button>
               </>
             ) : (
               <>
-                Belum punya akun?{" "}
+                Belum punya akun?{' '}
                 <button
                   className="auth-modal__footer-link"
                   type="button"
-                  onClick={() => onSwitchMode("register")}
+                  onClick={() => onSwitchMode('register')}
                 >
                   Daftar sekarang
                 </button>
@@ -238,17 +238,17 @@ export default function AuthForm({
 
       {showConfirmRegister && (
         <div className="auth-modal-overlay">
-          <div className="auth-modal" style={{ maxWidth: "360px", textAlign: "center" }}>
+          <div className="auth-modal modal--sm">
             <div className="auth-modal__body">
               <h3 className="auth-modal__title">Apakah yakin?</h3>
               <p className="auth-modal__subtitle">
-                Apakah Anda yakin data yang dimasukkan sudah benar dan ingin melanjutkan ke halaman login?
+                Apakah Anda yakin data yang dimasukkan sudah benar dan ingin
+                melanjutkan ke halaman login?
               </p>
-              <div style={{ display: "flex", gap: "12px", marginTop: "16px" }}>
+              <div className="modal__actions">
                 <button
                   type="button"
                   className="header__btn header__btn--outline"
-                  style={{ flex: 1 }}
                   onClick={() => setShowConfirmRegister(false)}
                 >
                   Tidak
@@ -256,10 +256,9 @@ export default function AuthForm({
                 <button
                   type="button"
                   className="header__btn header__btn--primary"
-                  style={{ flex: 1 }}
                   onClick={() => {
                     setShowConfirmRegister(false);
-                    onSwitchMode("login");
+                    onSwitchMode('login');
                   }}
                 >
                   Iya
@@ -272,30 +271,18 @@ export default function AuthForm({
 
       {showLoginSuccess && (
         <div className="auth-modal-overlay">
-          <div className="auth-modal" style={{ maxWidth: "360px", textAlign: "center" }}>
-            <div className="auth-modal__body" style={{ alignItems: "center" }}>
-              <div
-                style={{
-                  width: "56px",
-                  height: "56px",
-                  borderRadius: "50%",
-                  background: "#d1fae5",
-                  color: "#10b981",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "24px",
-                  marginBottom: "12px",
-                }}
-              >
+          <div className="auth-modal modal--sm">
+            <div className="auth-modal__body">
+              <div className="success-icon">
                 ✓
               </div>
               <h3 className="auth-modal__title">Login Berhasil</h3>
-              <p className="auth-modal__subtitle">Selamat datang kembali di Mero Quick!</p>
+              <p className="auth-modal__subtitle">
+                Selamat datang kembali di Mero Quick!
+              </p>
               <button
                 type="button"
-                className="header__btn header__btn--primary"
-                style={{ width: "100%", marginTop: "16px" }}
+                className="header__btn header__btn--primary w-full mt-4"
                 onClick={() => {
                   setShowLoginSuccess(false);
                   onSuccess();

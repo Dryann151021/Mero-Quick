@@ -33,7 +33,8 @@ export async function createRoom(payload) {
         facilities: payload.facilities,
         min_hours: Number(payload.minHours),
         open_time: payload.operationalHours?.open || "08:00",
-        close_time: payload.operationalHours?.close || "22:00"
+        close_time: payload.operationalHours?.close || "22:00",
+        images: payload.images
     };
 
     return apiClient('/rooms', {
@@ -54,7 +55,8 @@ export async function updateRoom(id, payload) {
         facilities: payload.facilities || [],
         min_hours: Number(payload.minHours),
         open_time: payload.operationalHours?.open || "08:00",
-        close_time: payload.operationalHours?.close || "22:00"
+        close_time: payload.operationalHours?.close || "22:00",
+        images: payload.images
     };
 
     return apiClient(`/rooms/${id}`, {
