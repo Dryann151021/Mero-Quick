@@ -12,6 +12,10 @@ export function getUserRole() {
   return getTokenPayload()?.role ?? null;
 }
 
+export function getUserName() {
+  return getTokenPayload()?.fullname ?? null;
+}
+
 export function isTokenExpired(token = localStorage.getItem("accessToken")) {
   if (!token) return true;
   try {

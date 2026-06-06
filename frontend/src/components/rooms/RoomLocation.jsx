@@ -3,8 +3,7 @@ export default function RoomLocation({ address }) {
         <section>
             <h2 className="room-detail__section-title">Lokasi</h2>
             <p
-                className="room-detail__description"
-                style={{ marginBottom: 12 }}
+                className="room-detail__description mb-3"
             >
                 {address}
             </p>

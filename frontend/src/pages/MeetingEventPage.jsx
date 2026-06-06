@@ -20,9 +20,9 @@ export default function MeetingEventPage({ onRoomClick }) {
       </section>
 
       {loading ? (
-        <div style={{ padding: '40px', textAlign: 'center', color: '#666' }}>Memuat data ruangan...</div>
+        <div className="state-loading">Memuat data ruangan...</div>
       ) : error ? (
-        <div style={{ padding: '40px', textAlign: 'center', color: 'red' }}>Terjadi kesalahan: {error}</div>
+        <div className="state-error">Terjadi kesalahan: {error}</div>
       ) : (
         <div className="listing-page__body">
           <div className="listing-page__filters">

@@ -22,8 +22,7 @@ export default function BookingScheduleList({ bookings, room }) {
           </div>
           <div className="booking-schedule__item-meta">
             <span
-              className="booking-schedule__item-note"
-              style={{ color: "#0f172a", fontWeight: "500" }}
+              className="booking-schedule__item-note booking-schedule__item-note--bold"
             >
               Kegiatan: {booking.activity}
             </span>
@@ -31,8 +30,7 @@ export default function BookingScheduleList({ bookings, room }) {
               Organisasi: {booking.organization}
             </span>
             <span
-              className="booking-schedule__item-note"
-              style={{ fontSize: "0.85rem", color: "#64748b" }}
+              className="booking-schedule__item-note booking-schedule__item-note--secondary"
             >
               Oleh: {booking.user_email || "Pengguna"}
             </span>
