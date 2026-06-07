@@ -92,7 +92,6 @@ ol {
 /* Modal Utilities */
 .modal--sm {
   max-width: 360px;
-  text-align: center;
 }
 .modal--md {
   max-width: 400px;
@@ -953,8 +952,7 @@ ol {
 /* Room Gallery */
 .room-gallery {
   display: grid;
-  grid-template-columns: 1fr 220px;
-  grid-template-rows: 320px 140px;
+  grid-template-columns: 1fr;
   gap: 8px;
   border-radius: var(--radius-lg);
   overflow: hidden;
@@ -1417,6 +1415,8 @@ ol {
 .auth-modal__body {
   padding: 28px 28px 32px;
   display: flex;
+  justify-content: center;
+  align-items: center;
   flex-direction: column;
   gap: 16px;
 }
