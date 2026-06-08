@@ -13,13 +13,16 @@ export const addBooking = async (c) => {
   // Check time availability (only against accepted bookings)
   const isAvailable = await BookingsRepositories.checkAvailability(
     payload.room_id,
-    payload.booking_date,
+    payload.start_date,
     payload.start_time,
+    payload.end_date,
     payload.end_time
   );
 
   if (!isAvailable) {
-    throw new InvariantError('Ruangan sudah dipesan pada tanggal dan jam tersebut');
+    throw new InvariantError(
+      'Ruangan sudah dipesan pada tanggal dan jam tersebut'
+    );
   }
 
   const bookingId = await BookingsRepositories.addBooking(payload, user.id);
@@ -30,8 +33,12 @@ export const addBooking = async (c) => {
 export const getMyBookings = async (c) => {
   const user = c.get('user');
 
-  const currentBookings = await BookingsRepositories.getUserCurrentBookings(user.id);
-  const historyBookings = await BookingsRepositories.getUserHistoryBookings(user.id);
+  const currentBookings = await BookingsRepositories.getUserCurrentBookings(
+    user.id
+  );
+  const historyBookings = await BookingsRepositories.getUserHistoryBookings(
+    user.id
+  );
 
   return response(c, 200, 'Berhasil mendapatkan data bookings', {
     currentBookings,

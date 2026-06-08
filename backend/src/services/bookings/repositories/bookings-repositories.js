@@ -10,14 +10,16 @@ const BookingsRepositories = {
 
     const query = {
       text: `INSERT INTO bookings 
-        (id, room_id, user_id, booking_date, start_time, end_time, activity, organization, status, created_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        (id, room_id, user_id, booking_date, start_date, end_date, start_time, end_time, activity, organization, status, created_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
         RETURNING id`,
       values: [
         id,
         payload.room_id,
         userId,
-        payload.booking_date,
+        payload.start_date,
+        payload.start_date,
+        payload.end_date,
         payload.start_time,
         payload.end_time,
         payload.activity,
@@ -35,15 +37,14 @@ const BookingsRepositories = {
     return result.rows[0].id;
   },
 
-  checkAvailability: async (roomId, date, startTime, endTime) => {
+  checkAvailability: async (roomId, startDate, startTime, endDate, endTime) => {
     const query = {
       text: `SELECT id FROM bookings 
         WHERE room_id = $1 
-          AND booking_date = $2 
           AND status = 'accepted'
-          AND start_time < $4 
-          AND end_time > $3`,
-      values: [roomId, date, startTime, endTime],
+          AND (start_date || ' ' || start_time)::timestamp < ($4 || ' ' || $5)::timestamp
+          AND (end_date || ' ' || end_time)::timestamp > ($2 || ' ' || $3)::timestamp`,
+      values: [roomId, startDate, startTime, endDate, endTime],
     };
 
     const result = await pool.query(query);
@@ -55,6 +56,8 @@ const BookingsRepositories = {
       text: `SELECT 
         b.id,
         b.booking_date,
+        b.start_date,
+        b.end_date,
         b.start_time,
         b.end_time,
         b.activity,
@@ -64,7 +67,7 @@ const BookingsRepositories = {
       FROM bookings b
       JOIN users u ON b.user_id = u.id
       WHERE b.room_id = $1 AND b.status = 'accepted'
-      ORDER BY b.booking_date ASC, b.start_time ASC`,
+      ORDER BY b.start_date ASC, b.start_time ASC`,
       values: [roomId],
     };
 
@@ -75,7 +78,7 @@ const BookingsRepositories = {
   getUserCurrentBookings: async (userId) => {
     const query = {
       text: `SELECT 
-        b.id, b.booking_date, b.start_time, b.end_time,
+        b.id, b.booking_date, b.start_date, b.end_date, b.start_time, b.end_time,
         b.activity, b.organization, b.status, b.created_at,
         r.name as room_name, r.location as room_location
       FROM bookings b
@@ -85,10 +88,10 @@ const BookingsRepositories = {
           b.status = 'pending'
           OR (
             b.status = 'accepted'
-            AND (b.booking_date || ' ' || b.end_time)::timestamp >= NOW()
+            AND (b.end_date || ' ' || b.end_time)::timestamp >= NOW()
           )
         )
-      ORDER BY b.booking_date ASC, b.start_time ASC`,
+      ORDER BY b.start_date ASC, b.start_time ASC`,
       values: [userId],
     };
 
@@ -99,7 +102,7 @@ const BookingsRepositories = {
   getUserHistoryBookings: async (userId) => {
     const query = {
       text: `SELECT 
-        b.id, b.booking_date, b.start_time, b.end_time,
+        b.id, b.booking_date, b.start_date, b.end_date, b.start_time, b.end_time,
         b.activity, b.organization, b.status, b.created_at,
         r.name as room_name, r.location as room_location
       FROM bookings b
@@ -109,10 +112,10 @@ const BookingsRepositories = {
           b.status = 'rejected'
           OR (
             b.status = 'accepted'
-            AND (b.booking_date || ' ' || b.end_time)::timestamp < NOW()
+            AND (b.end_date || ' ' || b.end_time)::timestamp < NOW()
           )
         )
-      ORDER BY b.booking_date DESC, b.start_time DESC`,
+      ORDER BY b.start_date DESC, b.start_time DESC`,
       values: [userId],
     };
 
@@ -123,7 +126,7 @@ const BookingsRepositories = {
   getAdminCurrentBookings: async () => {
     const query = {
       text: `SELECT 
-        b.id, b.booking_date, b.start_time, b.end_time,
+        b.id, b.booking_date, b.start_date, b.end_date, b.start_time, b.end_time,
         b.activity, b.organization, b.status, b.created_at,
         r.name as room_name, r.location as room_location,
         u.name as user_name, u.email as user_email
@@ -134,7 +137,7 @@ const BookingsRepositories = {
         b.status = 'pending'
         OR (
           b.status = 'accepted'
-          AND (b.booking_date || ' ' || b.end_time)::timestamp >= NOW()
+          AND (b.end_date || ' ' || b.end_time)::timestamp >= NOW()
         )
       ORDER BY b.created_at DESC`,
     };
@@ -146,7 +149,7 @@ const BookingsRepositories = {
   getAdminHistoryBookings: async () => {
     const query = {
       text: `SELECT 
-        b.id, b.booking_date, b.start_time, b.end_time,
+        b.id, b.booking_date, b.start_date, b.end_date, b.start_time, b.end_time,
         b.activity, b.organization, b.status, b.created_at,
         r.name as room_name, r.location as room_location,
         u.name as user_name, u.email as user_email
@@ -157,9 +160,9 @@ const BookingsRepositories = {
         b.status = 'rejected'
         OR (
           b.status = 'accepted'
-          AND (b.booking_date || ' ' || b.end_time)::timestamp < NOW()
+          AND (b.end_date || ' ' || b.end_time)::timestamp < NOW()
         )
-      ORDER BY b.booking_date DESC, b.start_time DESC`,
+      ORDER BY b.start_date DESC, b.start_time DESC`,
     };
 
     const result = await pool.query(query);

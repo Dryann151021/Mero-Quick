@@ -35,6 +35,8 @@ export const getRoomById = async (c) => {
   const bookings = rawBookings.map((b) => ({
     id: b.id,
     booking_date: b.booking_date,
+    start_date: b.start_date,
+    end_date: b.end_date,
     start_time: b.start_time,
     end_time: b.end_time,
     activity: b.activity,

@@ -5,7 +5,9 @@ export async function createBooking(payload) {
     method: 'POST',
     data: {
       room_id: payload.roomId,
-      booking_date: payload.date,
+      booking_date: payload.startDate,
+      start_date: payload.startDate,
+      end_date: payload.endDate,
       start_time: payload.startTime,
       end_time: payload.endTime,
       activity: payload.activity,

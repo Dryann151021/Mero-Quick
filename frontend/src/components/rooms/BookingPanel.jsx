@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import {
   formatCurrency,
-  calcDuration,
+  calcBookingDuration,
   generateTimeOptions,
 } from '../../utils/formatters';
 import { useBooking } from '../../hooks/useBooking';
 
 export default function BookingPanel({ room, bookings = [], onSuccess }) {
   const today = new Date().toISOString().split('T')[0];
-  const [date, setDate] = useState(today);
+  const [startDate, setStartDate] = useState(today);
+  const [endDate, setEndDate] = useState(today);
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('11:00');
   const [activity, setActivity] = useState('');
@@ -24,12 +25,18 @@ export default function BookingPanel({ room, bookings = [], onSuccess }) {
     room.operationalHours.open,
     room.operationalHours.close,
   );
-  const hours = calcDuration(startTime, endTime);
-  const totalPrice = computePrice(startTime, endTime);
+  const hours = calcBookingDuration(startDate, startTime, endDate, endTime);
+  const totalPrice = computePrice(startDate, startTime, endDate, endTime);
 
   useEffect(() => {
     setLocalError('');
-  }, [date, startTime, endTime, activity, organization]);
+  }, [startDate, endDate, startTime, endTime, activity, organization]);
+
+  useEffect(() => {
+    if (endDate < startDate) {
+      setEndDate(startDate);
+    }
+  }, [startDate, endDate]);
 
   async function handleBook() {
     if (!activity.trim() || !organization.trim()) {
@@ -37,10 +44,18 @@ export default function BookingPanel({ room, bookings = [], onSuccess }) {
       return;
     }
 
-    // Front-end conflict check
+    const startDateTime = new Date(`${startDate}T${startTime}`);
+    const endDateTime = new Date(`${endDate}T${endTime}`);
+    if (endDateTime <= startDateTime) {
+      setLocalError('Waktu selesai harus setelah waktu mulai.');
+      return;
+    }
+
+    // Front-end conflict check across existing bookings
     const conflict = bookings.some((b) => {
-      if (b.date !== date) return false;
-      return startTime < b.endTime && endTime > b.startTime;
+      const existingStart = new Date(`${b.startDate || b.date}T${b.startTime}`);
+      const existingEnd = new Date(`${b.endDate || b.date}T${b.endTime}`);
+      return startDateTime < existingEnd && endDateTime > existingStart;
     });
 
     if (conflict) {
@@ -56,7 +71,8 @@ export default function BookingPanel({ room, bookings = [], onSuccess }) {
 
   async function executeBooking() {
     const success = await submitBooking({
-      date,
+      startDate,
+      endDate,
       startTime,
       endTime,
       activity,
@@ -88,7 +104,8 @@ export default function BookingPanel({ room, bookings = [], onSuccess }) {
             Pemesanan Berhasil!
           </div>
           <div className="booking-panel__success-desc">
-            {room.name} telah dipesan untuk {date} pukul {startTime}–{endTime}.
+            {room.name} telah dipesan mulai {startDate} {startTime} sampai{' '}
+            {endDate} {endTime}.
             <br />
             Konfirmasi akan dikirim ke email Anda.
           </div>
@@ -118,15 +135,27 @@ export default function BookingPanel({ room, bookings = [], onSuccess }) {
 
       <div className="booking-panel__divider" />
 
-      <div className="booking-panel__field">
-        <label className="booking-panel__label">Tanggal</label>
-        <input
-          className="booking-panel__input"
-          type="date"
-          min={today}
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-        />
+      <div className="booking-panel__row">
+        <div className="booking-panel__field">
+          <label className="booking-panel__label">Tanggal Mulai</label>
+          <input
+            className="booking-panel__input"
+            type="date"
+            min={today}
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          />
+        </div>
+        <div className="booking-panel__field">
+          <label className="booking-panel__label">Tanggal Selesai</label>
+          <input
+            className="booking-panel__input"
+            type="date"
+            min={startDate}
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          />
+        </div>
       </div>
 
       <div className="booking-panel__row">
@@ -246,10 +275,16 @@ export default function BookingPanel({ room, bookings = [], onSuccess }) {
                   <strong>Ruangan:</strong> {room.name}
                 </div>
                 <div>
-                  <strong>Tanggal:</strong> {date}
+                  <strong>Tanggal:</strong> {startDate}
                 </div>
                 <div>
-                  <strong>Waktu:</strong> {startTime} – {endTime} ({hours} jam)
+                  <strong>Mulai:</strong> {startTime}
+                </div>
+                <div>
+                  <strong>Selesai:</strong> {endTime}
+                </div>
+                <div>
+                  <strong>Durasi:</strong> {hours} jam
                 </div>
                 <div>
                   <strong>Kegiatan:</strong> {activity}

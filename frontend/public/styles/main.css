@@ -2520,6 +2520,38 @@ ol {
   gap: 16px;
 }
 
+.admin-contact-card {
+  display: grid;
+  gap: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 24px;
+}
+.admin-contact-card__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+.admin-contact-card__name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+.admin-contact-card__info {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+}
+.admin-contact-card__info a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+.admin-contact-card__note {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
 /* Booking Card */
 .booking-card {
   background: var(--color-surface);

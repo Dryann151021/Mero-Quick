@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
-import { getMyBookings, getAdminBookings, updateBookingStatus } from '../api/bookings';
-import { formatCurrency, formatDateShort } from '../utils/formatters';
+import {
+  getMyBookings,
+  getAdminBookings,
+  updateBookingStatus,
+} from '../api/bookings';
+import { formatBookingDateTimeRange } from '../utils/formatters';
 import { getUserRole } from '../utils/auth';
 
 export default function BookingsPage() {
@@ -9,7 +13,7 @@ export default function BookingsPage() {
   const [historyBookings, setHistoryBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   const role = getUserRole();
   const isAdmin = role === 'admin';
 
@@ -17,7 +21,7 @@ export default function BookingsPage() {
     setLoading(true);
     setError(null);
     const fetchFn = isAdmin ? getAdminBookings : getMyBookings;
-    
+
     fetchFn()
       .then((data) => {
         setCurrentBookings(data.currentBookings || []);
@@ -41,27 +45,38 @@ export default function BookingsPage() {
       await updateBookingStatus(bookingId, status);
       fetchBookings(); // Refresh list after update
     } catch (err) {
-      alert(err.response?.data?.message || err.message || 'Gagal mengubah status');
+      alert(
+        err.response?.data?.message || err.message || 'Gagal mengubah status',
+      );
     }
   };
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
-      case 'accepted': return 'status-badge--success';
-      case 'rejected': return 'status-badge--danger';
-      case 'pending': default: return 'status-badge--warning';
+      case 'accepted':
+        return 'status-badge--success';
+      case 'rejected':
+        return 'status-badge--danger';
+      case 'pending':
+      default:
+        return 'status-badge--warning';
     }
   };
 
   const getStatusText = (status) => {
     switch (status) {
-      case 'accepted': return 'Disetujui';
-      case 'rejected': return 'Ditolak';
-      case 'pending': default: return 'Menunggu Konfirmasi';
+      case 'accepted':
+        return 'Disetujui';
+      case 'rejected':
+        return 'Ditolak';
+      case 'pending':
+      default:
+        return 'Menunggu Konfirmasi';
     }
   };
 
-  const bookingsToDisplay = activeTab === 'current' ? currentBookings : historyBookings;
+  const bookingsToDisplay =
+    activeTab === 'current' ? currentBookings : historyBookings;
 
   return (
     <main className="page-container">
@@ -70,8 +85,27 @@ export default function BookingsPage() {
           {isAdmin ? 'Dashboard Admin: Kelola Booking' : 'Booking Saya'}
         </h1>
         <p className="page-subtitle">
-          {isAdmin ? 'Terima atau tolak pemesanan ruangan dari pengguna' : 'Lihat status pemesanan ruangan Anda'}
+          {isAdmin
+            ? 'Terima atau tolak pemesanan ruangan dari pengguna'
+            : 'Lihat status pemesanan ruangan Anda'}
         </p>
+      </div>
+
+      <div className="admin-contact-card bookings-page__admin-card">
+        <div className="admin-contact-card__title">Kontak Admin</div>
+        <div className="admin-contact-card__details">
+          <div className="admin-contact-card__name">Rizki Santoso</div>
+          <div className="admin-contact-card__info">
+            Email: <a href="mailto:admin@meroapp.com">admin@meroapp.com</a>
+          </div>
+          <div className="admin-contact-card__info">
+            Phone: <a href="tel:+6281234567890">+62 812-3456-7890</a>
+          </div>
+        </div>
+        <div className="admin-contact-card__note">
+          Hubungi admin jika kamu memerlukan bantuan pemesanan atau konfirmasi
+          lebih lanjut.
+        </div>
       </div>
 
       <div className="bookings-page__tabs">
@@ -106,51 +140,68 @@ export default function BookingsPage() {
               <div className="booking-card__info">
                 <div className="booking-card__name-row">
                   <h3 className="booking-card__name">{booking.room_name}</h3>
-                  <span className={`status-badge ${getStatusBadgeClass(booking.status)}`}>
+                  <span
+                    className={`status-badge ${getStatusBadgeClass(booking.status)}`}
+                  >
                     {getStatusText(booking.status)}
                   </span>
                 </div>
-                
+
                 <div className="booking-card__details">
                   <div>
-                    <p className="booking-card__detail-label">Waktu Pelaksanaan</p>
+                    <p className="booking-card__detail-label">
+                      Waktu Pelaksanaan
+                    </p>
                     <p className="booking-card__detail-value">
-                      {formatDateShort(new Date(booking.booking_date))} • {booking.start_time} - {booking.end_time}
+                      {formatBookingDateTimeRange(
+                        booking.start_date || booking.booking_date,
+                        booking.start_time,
+                        booking.end_date || booking.booking_date,
+                        booking.end_time,
+                      )}
                     </p>
                   </div>
                   <div>
                     <p className="booking-card__detail-label">Kegiatan</p>
-                    <p className="booking-card__detail-value">{booking.activity}</p>
+                    <p className="booking-card__detail-value">
+                      {booking.activity}
+                    </p>
                   </div>
                   <div>
                     <p className="booking-card__detail-label">Organisasi</p>
-                    <p className="booking-card__detail-value">{booking.organization}</p>
+                    <p className="booking-card__detail-value">
+                      {booking.organization}
+                    </p>
                   </div>
                   {isAdmin && (
                     <div>
                       <p className="booking-card__detail-label">Pemesan</p>
-                      <p className="booking-card__detail-value">{booking.user_email}</p>
+                      <p className="booking-card__detail-value">
+                        {booking.user_email}
+                      </p>
                     </div>
                   )}
                 </div>
               </div>
 
-              {isAdmin && booking.status === 'pending' && activeTab === 'current' && (
-                <div className="booking-card__actions">
-                  <button 
-                    onClick={() => handleUpdateStatus(booking.id, 'rejected')}
-                    className="booking-card__btn booking-card__btn--reject"
-                  >
-                    Tolak
-                  </button>
-                  <button 
-                    onClick={() => handleUpdateStatus(booking.id, 'accepted')}
-                    className="booking-card__btn booking-card__btn--accept"
-                  >
-                    Terima
-                  </button>
-                </div>
-              )}
+              {isAdmin &&
+                booking.status === 'pending' &&
+                activeTab === 'current' && (
+                  <div className="booking-card__actions">
+                    <button
+                      onClick={() => handleUpdateStatus(booking.id, 'rejected')}
+                      className="booking-card__btn booking-card__btn--reject"
+                    >
+                      Tolak
+                    </button>
+                    <button
+                      onClick={() => handleUpdateStatus(booking.id, 'accepted')}
+                      className="booking-card__btn booking-card__btn--accept"
+                    >
+                      Terima
+                    </button>
+                  </div>
+                )}
             </div>
           ))}
         </div>
